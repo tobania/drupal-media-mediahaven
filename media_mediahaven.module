@@ -314,6 +314,10 @@ function media_mediahaven_add_file_entity_validate($form, &$form_state) {
     $upload = $form_state['values']['upload'];
     $upload = file_load($upload);
     $url = file_create_url($upload->uri);
+
+    // CURL doesn't find the image if the filename contains special characters that are encoded.
+    $url = rawurldecode($url);
+
     $url = str_replace('http://' . $_SERVER['HTTP_HOST'], '', $url);
     $url = $_SERVER['DOCUMENT_ROOT'] . $url;
 
