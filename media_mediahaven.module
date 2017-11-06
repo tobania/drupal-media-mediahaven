@@ -310,11 +310,12 @@ function media_mediahaven_form_file_entity_add_upload_alter(&$form, $form_state)
 function media_mediahaven_add_file_entity_validate($form, &$form_state) {
   if ($form_state['values']['mediahaven_upload'] == 1) {
     module_load_include('inc', 'media_mediahaven', 'includes/media_mediahaven.upload');
+    global $base_url;
 
     $upload = $form_state['values']['upload'];
     $upload = file_load($upload);
     $url = file_create_url($upload->uri);
-    $url = str_replace('http://' . $_SERVER['HTTP_HOST'], '', $url);
+    $url = str_replace($base_url, '', $url);
     $url = $_SERVER['DOCUMENT_ROOT'] . $url;
 
     $filename = $upload->filename;
