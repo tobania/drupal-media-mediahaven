@@ -136,20 +136,48 @@ class MediaHavenRestClient {
    *   The response when correct response from webservice.
    */
   protected function execute() {
+    // Include header information in the response.
+    $this->options[CURLOPT_HEADER] = TRUE;
+
     $curl = $this->initCurl();
     $response = curl_exec($curl);
+
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     $this->error = curl_error($curl);
+
+    // Separate header and body.
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+
     curl_close($curl);
-    if (!$response) {
+
+    if (!$body) {
+      return FALSE;
+    }
+    elseif ($http_code == 409) { // Conflict: file already exists.
+      // Not posting anymore.
+      unset($this->options[CURLOPT_POST]);
+      unset($this->options[CURLOPT_POSTFIELDS]);
+
+      // Filter the location of the existing object.
+      preg_match('/Location: (.*)/', $header, $matches);
+
+      if (!empty($matches) && isset($matches[1])) {
+        $this->options[CURLOPT_URL] = trim($matches[1]);
+
+        return $this->execute();
+      }
+
       return FALSE;
     }
     elseif ($http_code >= 300) {
-      $this->error = $response;
+      $this->error = $body;
+
       return FALSE;
     }
     else {
-      return $response;
+      return $body;
     }
   }
 }
