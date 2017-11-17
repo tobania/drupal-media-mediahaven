@@ -417,7 +417,7 @@ function media_mediahaven_submit_mob(&$form, &$form_state) {
     drupal_set_message(t('Successfully added media'));
   }
   else {
-    drupal_set_message(t('Already exists'), 'warning');
+    drupal_set_message(t('Successfully added media'));
   }
   $form_state['values']['redirect'] = $redirect;
   $form['#attributes']['target'] = '_parent';

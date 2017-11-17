@@ -318,6 +318,9 @@ function media_mediahaven_add_file_entity_validate($form, &$form_state) {
     $url = str_replace($base_url, '', $url);
     $url = $_SERVER['DOCUMENT_ROOT'] . $url;
 
+    // CURL doesn't find the image if the filename contains special characters that are encoded.
+    $url = rawurldecode($url);
+
     $filename = $upload->filename;
     $info = pathinfo($filename);
     $filename = str_replace('.' . $info['extension'], '', $filename);
@@ -338,16 +341,34 @@ function media_mediahaven_add_file_entity_validate($form, &$form_state) {
 
 function media_mediahaven_add_file_entity_submit($form, &$form_state) {
   if ($form_state['values']['mediahaven_upload'] == 1) {
+
     $fragmentid = $form_state['storage']['fragmentid'];
+    $original_fid = $form_state['values']['upload'];
 
-    //Alter the file
-    $fid = $form_state['values']['upload'];
-    $file = file_load($fid);
+    $query = new \EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'file')
+      ->propertyCondition('uri', 'mediahaven://f/' . $fragmentid)
+      ->range(0, 10)
+      ->execute();
 
-    $uri = file_stream_wrapper_uri_normalize("mediahaven://f/" . $fragmentid);
-    $file->uri = $uri;
+    if (isset($result['file']) && !empty($result['file'])) {
+      // If the file already exists in the database, use it.
+      $existing_fid = key(reset($result));
+      $form_state['values']['upload'] = $existing_fid;
+      $form_state['storage']['upload'] = $existing_fid;
 
-    file_save($file);
+      // Delete the original file.
+      file_delete_multiple(array($original_fid));
+    }
+    else {
+      // Alter the file.
+      $file = file_load($original_fid);
+
+      $uri = file_stream_wrapper_uri_normalize("mediahaven://f/" . $fragmentid);
+      $file->uri = $uri;
+
+      file_save($file);
+    }
   }
 }
 
