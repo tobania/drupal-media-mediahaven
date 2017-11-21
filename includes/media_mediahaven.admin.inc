@@ -327,16 +327,23 @@ function media_mediahaven_generate_result_current($media_item) {
   $variables['width'] = variable_get('media_mediahaven_thumb_width',150);
   $variables['height'] = variable_get('media_mediahaven_thumb_height',150);
 
-  return l('<img width="' . $variables['width'] .
-      '" height="' . $variables['height'] . '" src="' .
-      $media_item['thumbnailImagePath'] . '"/>
+  $image_options = array(
+    'src' => $media_item['thumbnailImagePath'],
+  );
+  if (!empty($variables['width'])) {
+    $image_options['width'] = $variables['width'];
+  }
+  if (!empty($variables['height'])) {
+    $image_options['height'] = $variables['height'];
+  }
+  return l('<img ' . drupal_attributes($image_options) . '"/>
       <span class="media_object_type_' . $media_item['type'] . '">'
-      . t($media_item['type']) . '</span>', 'admin/content/media/add/media_mediahaven/',
-      array(
-        'attributes' => array('class' => 'anchor-class', 'rel' => $media_item['fragmentId']),
-        'html' => TRUE,
-        'query' => array('uuid' => $media_item['fragmentId']),
-      )
+    . t($media_item['type']) . '</span>', 'admin/content/media/add/media_mediahaven/',
+    array(
+      'attributes' => array('class' => 'anchor-class', 'rel' => $media_item['fragmentId']),
+      'html' => TRUE,
+      'query' => array('uuid' => $media_item['fragmentId']),
+    )
   );
 }
 
