@@ -49,10 +49,7 @@ function media_mediahaven_file_save($media_data) {
     drupal_set_message(t('Successfully added media'));
   }
   else {
-    // Already exists.
-    drupal_set_message(t('Already exists'), 'warning');
-    return FALSE;
-    // drupal_goto("media/{$file->fid}/edit");
+    drupal_set_message(t('Successfully added media'));
   }
   return $file;
 }
