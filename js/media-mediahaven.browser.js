@@ -45,8 +45,8 @@
       var files = {};
 
       // Disable the links on media items list
-      $('ul#media-browser-library-list a').click(function() {
-        return false;
+      $('ul#media-browser-library-list a').click(function(e) {
+        e.preventDefault();
       });
 
       // Catch the click on a media item
